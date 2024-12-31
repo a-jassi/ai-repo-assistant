@@ -60,7 +60,9 @@ const AppSidebar = () => {
         <div className="flex items-center gap-2">
           <Image src="/logo.png" alt="logo" width={40} height={40} />
           {open && (
-            <h1 className="text-xl font-bold text-primary/80">Athena</h1>
+            <h1 className="text-xl font-bold text-primary/90 dark:text-violet-500">
+              Athena
+            </h1>
           )}
         </div>
       </SidebarHeader>
