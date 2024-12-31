@@ -6,6 +6,7 @@ import { type Metadata } from "next";
 import { TRPCReactProvider } from "@/trpc/react";
 
 import { ClerkProvider } from "@clerk/nextjs";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: "Athena",
@@ -18,9 +19,22 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${GeistSans.variable}`}>
+      <html
+        lang="en"
+        className={`${GeistSans.variable}`}
+        suppressHydrationWarning
+      >
         <body>
-          <TRPCReactProvider>{children}</TRPCReactProvider>
+          <TRPCReactProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+            </ThemeProvider>
+          </TRPCReactProvider>
         </body>
       </html>
     </ClerkProvider>
