@@ -14,6 +14,8 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { api } from "@/trpc/react";
+import { toast } from "sonner";
 
 type FormInput = {
   projectName: string;
@@ -35,6 +37,8 @@ const formSchema = z.object({
 });
 
 const CreatePage = () => {
+  const createProject = api.project.createProject.useMutation();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,7 +49,22 @@ const CreatePage = () => {
   });
 
   const onSubmit = (data: FormInput) => {
-    window.alert(JSON.stringify(data));
+    createProject.mutate(
+      {
+        projectName: data.projectName,
+        githubUrl: data.repoUrl,
+        githubToken: data.githubToken,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Project created successfully");
+          form.reset();
+        },
+        onError: () => {
+          toast.error("Failed to create project");
+        },
+      },
+    );
     return true;
   };
 
@@ -108,7 +127,11 @@ const CreatePage = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
+              <Button
+                type="submit"
+                disabled={createProject.isPending}
+                className="w-full"
+              >
                 Create Project
               </Button>
             </form>

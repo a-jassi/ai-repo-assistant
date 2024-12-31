@@ -7,6 +7,7 @@ import { TRPCReactProvider } from "@/trpc/react";
 
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Athena",
@@ -35,6 +36,7 @@ export default function RootLayout({
               {children}
             </ThemeProvider>
           </TRPCReactProvider>
+          <Toaster richColors />
         </body>
       </html>
     </ClerkProvider>
