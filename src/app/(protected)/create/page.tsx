@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/form";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
+import useRefetch from "@/hooks/use-refetch";
 
 type FormInput = {
   projectName: string;
@@ -38,6 +39,7 @@ const formSchema = z.object({
 
 const CreatePage = () => {
   const createProject = api.project.createProject.useMutation();
+  const refetch = useRefetch();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,6 +60,7 @@ const CreatePage = () => {
       {
         onSuccess: () => {
           toast.success("Project created successfully");
+          refetch();
           form.reset();
         },
         onError: () => {
