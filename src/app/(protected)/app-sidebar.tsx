@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import useProject from "@/hooks/use-project";
 import { cn } from "@/lib/utils";
 import { Bot, CreditCard, LayoutDashboard, Plus } from "lucide-react";
 import Image from "next/image";
@@ -38,21 +39,11 @@ const applicationItems = [
   },
 ];
 
-const projectItems = [
-  {
-    name: "Project 1",
-  },
-  {
-    name: "Project 2",
-  },
-  {
-    name: "Project 3",
-  },
-];
-
 const AppSidebar = () => {
   const pathname = usePathname();
   const { open } = useSidebar();
+  const { projects, selectedProjectId, setSelectedProjectId } = useProject();
+
   return (
     <Sidebar collapsible="icon" variant="floating">
       {/* TODO: Update Logo to Svg version */}
@@ -96,17 +87,22 @@ const AppSidebar = () => {
           <SidebarGroupLabel>Your Projects</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {projectItems.map((project) => {
+              {projects?.map((project) => {
                 return (
                   <SidebarMenuItem key={project.name}>
                     <SidebarMenuButton asChild>
-                      <div>
-                        {/* TODO: update conditional statement for selected project */}
+                      <div
+                        onClick={() => setSelectedProjectId(project.id)}
+                        className={cn("cursor-pointer", {
+                          "bg-violet-300/30": project.id === selectedProjectId,
+                        })}
+                      >
                         <div
                           className={cn(
                             "flex size-6 items-center justify-center rounded-sm border bg-white text-sm text-primary",
                             {
-                              "bg-primary text-white": true,
+                              "bg-primary text-white":
+                                project.id === selectedProjectId,
                             },
                           )}
                         >
