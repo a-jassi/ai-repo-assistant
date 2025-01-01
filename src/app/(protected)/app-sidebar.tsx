@@ -94,14 +94,14 @@ const AppSidebar = () => {
                       <div
                         onClick={() => setSelectedProjectId(project.id)}
                         className={cn("cursor-pointer", {
-                          "bg-violet-300/30": project.id === selectedProjectId,
+                          "bg-primary": project.id === selectedProjectId,
                         })}
                       >
                         <div
                           className={cn(
                             "flex size-6 items-center justify-center rounded-sm border bg-white text-sm text-primary",
                             {
-                              "bg-primary text-white":
+                              "bg-violet-500/80 text-white":
                                 project.id === selectedProjectId,
                             },
                           )}
