@@ -94,7 +94,8 @@ const AppSidebar = () => {
                       <div
                         onClick={() => setSelectedProjectId(project.id)}
                         className={cn("cursor-pointer", {
-                          "bg-primary": project.id === selectedProjectId,
+                          "bg-primary text-white":
+                            project.id === selectedProjectId,
                         })}
                       >
                         <div
@@ -119,7 +120,7 @@ const AppSidebar = () => {
               {open && (
                 <SidebarMenuItem>
                   <Link href="/create">
-                    <Button size="sm" variant={"outline"} className="w-fit">
+                    <Button variant={"outline"} className="w-full">
                       <Plus />
                       Create Project
                     </Button>
