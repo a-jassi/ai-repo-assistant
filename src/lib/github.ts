@@ -1,6 +1,7 @@
 import { db } from "@/server/db";
 import { Octokit } from "octokit";
 import axios from "axios";
+import { aiSummarizeCommit } from "./gemini";
 
 export const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
@@ -83,8 +84,12 @@ const filterUnprocessedCommits = async (
 
 const summarizeCommit = async (githubUrl: string, commitHash: string) => {
   const { data } = await axios.get(`${githubUrl}/commit/${commitHash}.diff`, {
-    headers,
+    headers: {
+      Accept: "application/vnd.github.v3.diff",
+    },
   });
+
+  return await aiSummarizeCommit(data);
 };
 
 export const pollCommits = async (projectId: string) => {
@@ -94,4 +99,34 @@ export const pollCommits = async (projectId: string) => {
     projectId,
     commitHashes,
   );
+
+  const summaryResponses = await Promise.allSettled(
+    unprocessedCommits.map((commit) => {
+      return summarizeCommit(githubUrl, commit.commitHash);
+    }),
+  );
+
+  const summaries = summaryResponses.map((response) => {
+    if (response.status === "fulfilled") {
+      return response.value;
+    }
+
+    return "";
+  });
+
+  const commits = await db.commit.createMany({
+    data: summaries.map((summary, i) => {
+      return {
+        projectId,
+        commitHash: unprocessedCommits[i]!.commitHash,
+        commitMessage: unprocessedCommits[i]!.commitMessage,
+        commitAuthorName: unprocessedCommits[i]!.commitAuthorName,
+        commitAuthorAvatar: unprocessedCommits[i]!.commitAuthorAvatar,
+        commitDate: unprocessedCommits[i]!.commitDate,
+        summary,
+      };
+    }),
+  });
+
+  return commits;
 };
