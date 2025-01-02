@@ -7,8 +7,6 @@ export const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
 });
 
-const githubUrl = "https://github.com/a-jassi/ai-repo-assistant";
-
 type Response = {
   commitHash: string;
   commitMessage: string;
@@ -57,10 +55,7 @@ const fetchProjectGithubUrl = async (projectId: string) => {
     throw new Error("Project has no GitHub URL");
   }
 
-  return {
-    project,
-    githubUrl: project?.githubUrl,
-  };
+  return project.githubUrl;
 };
 
 const filterUnprocessedCommits = async (
@@ -93,7 +88,7 @@ const summarizeCommit = async (githubUrl: string, commitHash: string) => {
 };
 
 export const pollCommits = async (projectId: string) => {
-  const { project, githubUrl } = await fetchProjectGithubUrl(projectId);
+  const githubUrl = await fetchProjectGithubUrl(projectId);
   const commitHashes = await getCommitHashes(githubUrl);
   const unprocessedCommits = await filterUnprocessedCommits(
     projectId,
