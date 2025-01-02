@@ -20,7 +20,7 @@ export const getCommitHashes = async (
   githubUrl: string,
 ): Promise<Response[]> => {
   const [owner, repo] = githubUrl.split("/").slice(-2);
-  if (!owner || !repo) {
+  if (!owner || !repo || !githubUrl.startsWith("https://github.com/")) {
     throw new Error("Invalid GitHub URL");
   }
 
@@ -81,7 +81,11 @@ const filterUnprocessedCommits = async (
   return unprocessedCommits;
 };
 
-const summarizeCommit = async (githubUrl: string, commitHash: string) => {};
+const summarizeCommit = async (githubUrl: string, commitHash: string) => {
+  const { data } = await axios.get(`${githubUrl}/commit/${commitHash}.diff`, {
+    headers,
+  });
+};
 
 export const pollCommits = async (projectId: string) => {
   const { project, githubUrl } = await fetchProjectGithubUrl(projectId);

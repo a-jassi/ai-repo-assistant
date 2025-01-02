@@ -33,7 +33,7 @@ The last comment does not include the file names, because there were more than t
 Do not include parts of the example in your summary.
 It is given only as an example of appropriate comments.`;
 
-export const summarizeCommit = async (diff: string) => {
+export const aiSummarizeCommit = async (diff: string) => {
   const response = await model.generateContent([
     prompt,
     `Please summarise the following diff file: \n\n${diff}`,
