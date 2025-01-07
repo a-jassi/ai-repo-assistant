@@ -21,7 +21,3 @@ export const loadGithubRepo = async (
   const docs = await loader.load();
   return docs;
 };
-
-console.log(
-  await loadGithubRepo("https://github.com/a-jassi/ai-repo-assistant"),
-);
