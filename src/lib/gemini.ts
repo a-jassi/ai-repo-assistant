@@ -1,11 +1,12 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Document } from "@langchain/core/documents";
 
 const genAi = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 const model = genAi.getGenerativeModel({
   model: "gemini-1.5-flash",
 });
 
-const prompt = `You are an expert programmer, and you are trying to summarize a git diff.
+const summarizeCommitPrompt = `You are an expert programmer, and you are trying to summarize a git diff.
 Reminders about the git diff format:
 For every file, there are a few metadata lines, like (for example):
 \'\'\'
@@ -35,9 +36,35 @@ It is given only as an example of appropriate comments.`;
 
 export const aiSummarizeCommit = async (diff: string) => {
   const response = await model.generateContent([
-    prompt,
+    summarizeCommitPrompt,
     `Please summarise the following diff file: \n\n${diff}`,
   ]);
 
   return response.response.text();
+};
+
+export const summarizeCode = async (doc: Document) => {
+  console.log("Getting summary for: ", doc.metadata.source);
+  const code = doc.pageContent.slice(0, 10000); // Limit number of characters
+  const response = await model.generateContent([
+    `You are an intelligent senior software engineer who specializes in onboarding junior software engineers onto projects`,
+    `You are onboarding a junior software engineer and explaining the purpose of the ${doc.metadata.source} file
+    Here is the code:
+    ---
+    ${code}
+    ---
+    Give a maximum 100 word summary of the code given above.`,
+  ]);
+
+  return response.response.text();
+};
+
+export const generateEmbedding = async (textSummary: string) => {
+  const model = genAi.getGenerativeModel({
+    model: "text-embedding-004",
+  });
+
+  const response = await model.embedContent(textSummary);
+  const embedding = response.embedding;
+  return embedding.values;
 };
