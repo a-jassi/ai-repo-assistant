@@ -5,6 +5,7 @@ import { ExternalLink, Github } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import CommitLog from "./commit-log";
+import AskQuestionCard from "./ask-question-card";
 
 const Dashboard = () => {
   const { project } = useProject();
@@ -39,7 +40,7 @@ const Dashboard = () => {
           TeamMembers InviteButton ArchiveButton
         </div>
       </div>
-      <div className="mt-4">AskQuestionCard</div>
+      <AskQuestionCard />
       <div className="mt-8" />
       <CommitLog />
     </div>
