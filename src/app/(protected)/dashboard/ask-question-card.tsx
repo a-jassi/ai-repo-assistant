@@ -8,15 +8,33 @@ import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import Image from "next/image";
+import { askQuestion, SimilarFiles } from "./actions";
+import { readStreamableValue } from "ai/rsc";
 
 const AskQuestionCard = () => {
-  const { selectedProjectId } = useProject();
+  const { project } = useProject();
   const [question, setQuestion] = useState("");
   const [dialogIsOpen, setDialogIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [filesReferenced, setFilesReferenced] = useState<SimilarFiles[]>([]);
+  const [result, setResult] = useState("");
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!project?.id) return;
+    setIsLoading(true);
     setDialogIsOpen(true);
+
+    const { output, filesReferenced } = await askQuestion(question, project.id);
+    setFilesReferenced(filesReferenced);
+
+    for await (const delta of readStreamableValue(output)) {
+      if (delta) {
+        setResult((res) => res + delta);
+      }
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -28,6 +46,10 @@ const AskQuestionCard = () => {
               <Image src="/logo.png" alt="Athena" width={40} height={40} />
             </DialogTitle>
           </DialogHeader>
+          {result}
+          {filesReferenced.map((file) => {
+            return <span>{file.fileName}</span>;
+          })}
         </DialogContent>
       </Dialog>
       <Card>

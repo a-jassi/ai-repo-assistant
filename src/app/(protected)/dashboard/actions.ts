@@ -24,7 +24,7 @@ AI assistant will not invent anything that is not drawn directly from the contex
 Answer in markdown syntax, with code snippets if needed. Be as detailed as possible when answering, make sure there is no ambiguity and include clear explanations with edge cases and references.
 `;
 
-type SimilarFiles = {
+export type SimilarFiles = {
   fileName: string;
   sourceCode: string;
   summary: string;
@@ -58,7 +58,7 @@ export const askQuestion = async (question: string, projectId: string) => {
   const similarFiles = (await db.$queryRaw`
   SELECT "fileName", "sourceCode", "summary", 1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) AS similarity
   FROM "SourceCodeEmbedding"
-  WHERE 1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) > 0.5
+  WHERE 1 - ("summaryEmbedding" <=> ${vectorQuery}::vector) > 0.45
   AND "projectId" = ${projectId}
   ORDER BY similarity DESC
   LIMIT 10
@@ -86,7 +86,7 @@ export const askQuestion = async (question: string, projectId: string) => {
   })();
 
   return {
-    output: stream,
+    output: stream.value,
     filesReferenced: similarFiles,
   };
 };
