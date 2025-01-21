@@ -10,6 +10,8 @@ import { DialogTitle } from "@radix-ui/react-dialog";
 import Image from "next/image";
 import { askQuestion, SimilarFiles } from "./actions";
 import { readStreamableValue } from "ai/rsc";
+import MDEditor from "@uiw/react-md-editor";
+import { useTheme } from "next-themes";
 
 const AskQuestionCard = () => {
   const { project } = useProject();
@@ -19,14 +21,22 @@ const AskQuestionCard = () => {
   const [filesReferenced, setFilesReferenced] = useState<SimilarFiles[]>([]);
   const [result, setResult] = useState("");
 
+  const { theme } = useTheme();
+
+  const resetDialog = () => {
+    setResult("");
+    setFilesReferenced([]);
+  };
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    resetDialog();
     e.preventDefault();
 
     if (!project?.id) return;
     setIsLoading(true);
-    setDialogIsOpen(true);
 
     const { output, filesReferenced } = await askQuestion(question, project.id);
+    setDialogIsOpen(true);
     setFilesReferenced(filesReferenced);
 
     for await (const delta of readStreamableValue(output)) {
@@ -40,16 +50,20 @@ const AskQuestionCard = () => {
   return (
     <>
       <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[80vw]" data-color-mode={theme}>
           <DialogHeader>
             <DialogTitle>
               <Image src="/logo.png" alt="Athena" width={40} height={40} />
             </DialogTitle>
           </DialogHeader>
-          {result}
-          {filesReferenced.map((file) => {
-            return <span>{file.fileName}</span>;
-          })}
+          <MDEditor.Markdown
+            source={result}
+            className="!h-full max-h-[40vh] w-full max-w-full overflow-scroll rounded-md p-2"
+          />
+
+          <Button type="button" onClick={resetDialog}>
+            Close
+          </Button>
         </DialogContent>
       </Dialog>
       <Card>
@@ -64,7 +78,9 @@ const AskQuestionCard = () => {
               onChange={(e) => setQuestion(e.target.value)}
             />
             <div className="h-4" />
-            <Button type="submit">Ask Athena!</Button>
+            <Button type="submit" disabled={isLoading}>
+              Ask Athena!
+            </Button>
           </form>
         </CardContent>
       </Card>
