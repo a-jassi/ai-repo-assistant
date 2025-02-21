@@ -13,6 +13,8 @@ import { readStreamableValue } from "ai/rsc";
 import MDEditor from "@uiw/react-md-editor";
 import { useTheme } from "next-themes";
 import { CodeReferences } from "./code-references";
+import { api } from "@/trpc/react";
+import { toast } from "sonner";
 
 const AskQuestionCard = () => {
   const { project } = useProject();
@@ -21,6 +23,7 @@ const AskQuestionCard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [filesReferenced, setFilesReferenced] = useState<SimilarFiles[]>([]);
   const [result, setResult] = useState("");
+  const saveResponse = api.project.saveResponse.useMutation();
 
   const { theme } = useTheme();
 
@@ -57,6 +60,30 @@ const AskQuestionCard = () => {
             <DialogTitle>
               <Image src="/logo.png" alt="Athena" width={40} height={40} />
             </DialogTitle>
+            <Button
+              variant={"outline"}
+              disabled={saveResponse.isPending}
+              onClick={() =>
+                saveResponse.mutate(
+                  {
+                    projectId: project!.id,
+                    question,
+                    response: result,
+                    filesReferenced,
+                  },
+                  {
+                    onSuccess: () => {
+                      toast.success("Response Saved!");
+                    },
+                    onError: () => {
+                      toast.error("Failed to save response!");
+                    },
+                  },
+                )
+              }
+            >
+              Save Response
+            </Button>
           </DialogHeader>
           <div className="flex h-[85vh] w-[85vw] flex-col">
             <MDEditor.Markdown
@@ -66,10 +93,40 @@ const AskQuestionCard = () => {
             <div className="h-4" />
 
             {/* <CodeReferences filesReferenced={filesReferenced} /> */}
-
-            <Button type="button" onClick={resetDialog}>
-              Close
-            </Button>
+            <div className="flex w-full gap-4">
+              <Button
+                disabled={saveResponse.isPending}
+                className="grow"
+                onClick={() =>
+                  saveResponse.mutate(
+                    {
+                      projectId: project!.id,
+                      question,
+                      response: result,
+                      filesReferenced,
+                    },
+                    {
+                      onSuccess: () => {
+                        toast.success("Response Saved!");
+                      },
+                      onError: () => {
+                        toast.error("Failed to save response!");
+                      },
+                    },
+                  )
+                }
+              >
+                Save Response
+              </Button>
+              <Button
+                variant={"outline"}
+                type="button"
+                className="grow"
+                onClick={resetDialog}
+              >
+                Close
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
