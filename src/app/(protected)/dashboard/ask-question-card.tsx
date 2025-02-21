@@ -12,6 +12,7 @@ import { askQuestion, SimilarFiles } from "./actions";
 import { readStreamableValue } from "ai/rsc";
 import MDEditor from "@uiw/react-md-editor";
 import { useTheme } from "next-themes";
+import { CodeReferences } from "./code-references";
 
 const AskQuestionCard = () => {
   const { project } = useProject();
@@ -26,6 +27,7 @@ const AskQuestionCard = () => {
   const resetDialog = () => {
     setResult("");
     setFilesReferenced([]);
+    setDialogIsOpen(false);
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -50,20 +52,25 @@ const AskQuestionCard = () => {
   return (
     <>
       <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
-        <DialogContent className="sm:max-w-[80vw]" data-color-mode={theme}>
+        <DialogContent data-color-mode={theme}>
           <DialogHeader>
             <DialogTitle>
               <Image src="/logo.png" alt="Athena" width={40} height={40} />
             </DialogTitle>
           </DialogHeader>
-          <MDEditor.Markdown
-            source={result}
-            className="!h-full max-h-[40vh] w-full max-w-full overflow-scroll rounded-md p-2"
-          />
+          <div className="flex h-[85vh] w-[85vw] flex-col">
+            <MDEditor.Markdown
+              source={result}
+              className="flex grow flex-col overflow-auto rounded-md p-2"
+            />
+            <div className="h-4" />
 
-          <Button type="button" onClick={resetDialog}>
-            Close
-          </Button>
+            {/* <CodeReferences filesReferenced={filesReferenced} /> */}
+
+            <Button type="button" onClick={resetDialog}>
+              Close
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
       <Card>
@@ -78,7 +85,7 @@ const AskQuestionCard = () => {
               onChange={(e) => setQuestion(e.target.value)}
             />
             <div className="h-4" />
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading || question === ""}>
               Ask Athena!
             </Button>
           </form>
