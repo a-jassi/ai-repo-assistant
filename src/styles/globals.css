@@ -1,8 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-
+ 
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -39,7 +38,7 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
-
+ 
   .dark {
     --background: 224 71.4% 4.1%;
     --foreground: 210 20% 98%;
@@ -75,7 +74,7 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
-
+ 
 @layer base {
   * {
     @apply border-border;
@@ -83,4 +82,76 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+ 
+/* ─── Wavy canvas backdrop ─── */
+ 
+.aurora-bg {
+  position: relative;
+  background: hsl(var(--background));
+  overflow: hidden;
+}
+ 
+.wavy-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+ 
+.wave-path {
+  fill: none;
+  stroke-width: 1px;
+  stroke: rgba(147, 51, 234, 0.18);
+}
+ 
+/*
+  DASH_SEGMENT = 180
+  DASH_GAP     = 2000
+  TOTAL        = 2180  ← keyframes animate over exactly this range
+                         so the loop point is always fully off-screen
+                         and the jump is invisible
+*/
+@keyframes travelRight {
+  0%   { stroke-dashoffset: 2180; }
+  100% { stroke-dashoffset: 0; }
+}
+ 
+@keyframes travelLeft {
+  0%   { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 2180; }
+}
+ 
+/* Fade left/right edges so lines vanish softly */
+.wavy-canvas::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    hsl(var(--background)) 0%,
+    transparent 12%,
+    transparent 88%,
+    hsl(var(--background)) 100%
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+ 
+/* Fade top/bottom edges */
+.wavy-canvas::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    hsl(var(--background)) 0%,
+    transparent 8%,
+    transparent 92%,
+    hsl(var(--background)) 100%
+  );
+  z-index: 2;
+  pointer-events: none;
 }
